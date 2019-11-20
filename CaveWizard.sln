@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaveWizard", "CaveWizard\CaveWizard.csproj", "{84D3904D-A3F5-4D46-B803-6F6CF6C6E75D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaveEngine", "CaveEngine\CaveEngine.csproj", "{C1D6A2D6-A45C-465B-80A9-25376DD97E28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84D3904D-A3F5-4D46-B803-6F6CF6C6E75D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84D3904D-A3F5-4D46-B803-6F6CF6C6E75D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84D3904D-A3F5-4D46-B803-6F6CF6C6E75D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84D3904D-A3F5-4D46-B803-6F6CF6C6E75D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
