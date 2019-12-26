@@ -1,28 +1,37 @@
 using System;
+using System.Collections.Generic;
+using CaveEngine.ScreenSystem;
 using CaveEngine.Utils;
 using CaveWizard.Globals;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using tainicom.Aether.Physics2D.Collision.Shapes;
+using tainicom.Aether.Physics2D.Common;
+using tainicom.Aether.Physics2D.Content;
 using tainicom.Aether.Physics2D.Dynamics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;
 
 namespace CaveWizard.Game {
-    public class Player : IDrawable, IUpdateable {
+    public class Player : WorldObject, IDrawable, IUpdateable, ICanSpawnMissiles {
         public int DrawOrder { get; set; }
         public bool Visible { get; set;}
         public bool Enabled { get; set; }
         public int UpdateOrder { get; set;}
-        private readonly Texture2D _texture2D;
         private readonly float _baseVelocity;
         private bool _inAir;
-        public Body PlayerBody { get; }
-        private readonly Vector2 _playerBodySize;
-        private readonly Vector2 _playerTextureMetersSize;
-        private readonly Vector2 _playerTextureSize;
-        private readonly Vector2 _playerTextureOrigin;
+        private List<MagicMissile> _magicMissiles;
+        private List<MagicMissile> _magicMissilesToRemove;
+        public bool InAir => _inAir;
+        private float _x, _y;
+        private SoundEffect _jumpSoundEffects;
+
         private SpriteEffects _playerEffect = SpriteEffects.FlipVertically;
+        private bool _isMoving;
+        private Vector2 _playerMovingForce;
         
         
         public event EventHandler<EventArgs> DrawOrderChanged;
@@ -30,74 +39,148 @@ namespace CaveWizard.Game {
         public event EventHandler<EventArgs> EnabledChanged;
         public event EventHandler<EventArgs> UpdateOrderChanged;
     
-        public Player(ContentManager content, string propName, Vector2 pos, World world) {
-            _texture2D = content.Load<Texture2D>(propName);
-            _baseVelocity = 10.0f;
-            _playerBodySize = new Vector2(1f, 1.5f);
-            _playerTextureMetersSize = new Vector2(1.5f, 1.5f);
-            _playerTextureSize = new Vector2(_texture2D.Width, _texture2D.Height);
-            _playerTextureOrigin = _playerTextureSize / 2f;
-            PlayerBody = world.CreateRectangle(_playerBodySize.X, _playerBodySize.Y, 1f, pos);
-            PlayerBody.BodyType = BodyType.Dynamic;
-            PlayerBody.SetRestitution(0f);
-            PlayerBody.Mass = 2f;
-            PlayerBody.FixedRotation = true;
-            PlayerBody.SetFriction(0.5f);
-            PlayerBody.OnSeparation += Seperation;
-            PlayerBody.OnCollision += Colided;
+        public Player(ScreenManager screenManager, string propName, Vector2 pos, World world, int columns, int rows) : base(screenManager, propName, new Vector2(1.5f, 0.5f),  new Vector2(1.5f, 1.5f), columns, rows)
+        {
+            _magicMissiles = new List<MagicMissile>();
+            _magicMissilesToRemove = new List<MagicMissile>();
+            _x = 0;
+            _y = 0;
+            _baseVelocity = 0.05f;
+            ObjectBody = world.CreateCapsule(_objectBodySize.X, 0.5f, 10, _objectBodySize.Y , 10, 1f, pos);
+            ObjectBody.BodyType = BodyType.Dynamic;
+            ObjectBody.SetRestitution(0f);
+            ObjectBody.Mass = 2f;
+            ObjectBody.FixedRotation = true;
+            ObjectBody.SetFriction(1.0f);
+            ObjectBody.OnSeparation += Seperation;
+            ObjectBody.OnCollision += Colided;
+            ObjectBody.Tag = "Player";
+            foreach (var fixture1 in ObjectBody.FixtureList)
+            {
+                fixture1.Tag = "Player";
+            }
+            ObjectBody.SetCollisionCategories((Category) (Category.All - Category.Cat1));
+            Vertices vertices = PolygonTools.CreateRectangle(0.2f, 0.2f);
+            vertices.Translate(new Vector2(0f, -0.8f));
+            Shape rectangle = new PolygonShape(vertices, 1f);
+            _jumpSoundEffects = screenManager.Content.Load<SoundEffect>("Sounds/jump");
+            Fixture fixture = ObjectBody.CreateFixture(rectangle);
+            fixture.IsSensor = true;
+            fixture.OnSeparation = fixtureSeperated;
+//            PlayerBody.CreateRectangle(0.2f, 0.2f, 1f, new Vector2(0f, -0.8f)).IsSensor = true;
             _inAir = true;
+            _isMoving = false;
+            _playerMovingForce = new Vector2(0, 0);
+            
 
         }
 
+        private void fixtureSeperated(Fixture sender, Fixture other, Contact contact)
+        {
+            _inAir = true;
+
+        }
         private bool Colided(Fixture sender, Fixture other, Contact contact)
         {
             _inAir = false;
+            FixedArray2<Vector2> points;
+            Vector2 normal;
+            contact.GetWorldManifold(out normal, out points);
             return true;
             
         }
 
         private void Seperation(Fixture sender, Fixture other, Contact contact)
         {
-            _inAir = true;
+//            if (PlayerBody.ContactList.Next == null)
+//            {
+//                _inAir = true;
+//            }
+//            
         }
-        
-        
 
-        public void Update(GameTime gameTime) {
-            
-            if (InputManager.KeyState.IsKeyDown(KeyBinds.PlayerMoveLeft))
+        public void HandleInput(InputHelper inputHelper, GameTime gameTime)
+        {
+            _playerMovingForce = new Vector2(0, 0);
+            if (inputHelper.KeyboardState.IsKeyDown(KeyBinds.PlayerMoveLeft))
             {
-                PlayerBody.ApplyForce(new Vector2(x: -_baseVelocity, 0));
+                _playerMovingForce += new Vector2(x: -_baseVelocity, 0);
                 _playerEffect = SpriteEffects.None | SpriteEffects.FlipVertically;
             }
 
-            if (InputManager.KeyState.IsKeyDown(KeyBinds.PlayerMoveRight)) {
-                PlayerBody.ApplyForce(new Vector2(x: _baseVelocity, 0));
+            if (inputHelper.KeyboardState.IsKeyDown(KeyBinds.PlayerMoveRight)) {
+                _playerMovingForce += new Vector2(x: _baseVelocity, 0);
                 _playerEffect = SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically;
-
             }
 
-            if (InputManager.KeyState.IsKeyDown(KeyBinds.PlayerMoveDown)) {
-                PlayerBody.ApplyForce(new Vector2(x: 0, -_baseVelocity));
-            }
 
-            if (InputManager.KeyState.IsKeyDown(KeyBinds.PlayerMoveUp)) {
-                PlayerBody.ApplyForce(new Vector2(x: 0, _baseVelocity));
-            }
-
-            if (InputManager.KeyState.IsKeyDown(KeyBinds.PlayerJump) && InputManager.PrevKeyState.IsKeyUp(KeyBinds.PlayerJump) && !_inAir)
+            if (inputHelper.IsNewKeyPress(KeyBinds.PlayerJump) && !_inAir)
             {
-                PlayerBody.ApplyLinearImpulse(new Vector2(0f, 6f));
+                ObjectBody.ApplyLinearImpulse(new Vector2(0f, 6f));
+                _jumpSoundEffects.Play();
             }
             
+        }
+        
+
+        public void Update(GameTime gameTime)
+        {
+            _currentFrame++;
+            if (!_playerMovingForce.Equals(Vector2.Zero))
+            {
+                ObjectBody.Position += _playerMovingForce;
+            }
+
+            _magicMissilesToRemove.Clear();
+            foreach (var magicMissile in _magicMissiles)
+            {
+                magicMissile.Update(gameTime);
+            }
+
+            foreach (var magicMissile in _magicMissilesToRemove)
+            {
+                magicMissile.ObjectBody.World.Remove(magicMissile.ObjectBody);
+                _magicMissiles.Remove(magicMissile);
+            }            
         }
 
         public void Draw(GameTime gameTime)
         {
-            GlobalDevices._SpriteBatch.Draw(_texture2D, PlayerBody.Position, null, Color.White, PlayerBody.Rotation,
-                _playerTextureOrigin, _playerTextureMetersSize / _playerTextureSize, _playerEffect, 0f);
+            int width =  Texture2D.Width / 6; 
+            int height = Texture2D.Height / 3;
+            
+            Rectangle sourceRectangle = new Rectangle(width * _currColumn, height * _currRow, width, height);
+            
+            _screenManager.SpriteBatch.Draw(Texture2D, ObjectBody.Position, sourceRectangle, Color.White, ObjectBody.Rotation,
+                  _textureHalf, _objectTextureMetersSize / (_objectTextureSize / new Vector2(6f, 3f)), _playerEffect, 0f);
         }
-        
-        
+
+
+        public void HandleCursor(InputHelper input, World world, Camera2D camera)
+        {
+            if (input.IsNewMouseButtonPress(KeyBinds.PlayerShoot))
+            {
+                _magicMissiles.Add(new MagicMissile(_screenManager, world, ObjectBody.Position, camera.ConvertScreenToWorld(input.Cursor), null,
+                    new Vector2(0.05f), new Vector2(0.05f), this, 1, 1));
+
+                _currColumn = 5;
+                _currRow = 1;
+            }
+            if (input.IsNewMouseButtonRelease(KeyBinds.PlayerShoot))
+            {
+                _currColumn = 0;
+                _currRow = 0;
+            }
+        }
+
+        public void RemoveMissiles(WorldObject missile)
+        {
+            _magicMissiles.Remove((MagicMissile)missile);
+        }
+
+        public void AddToRemoveLater(WorldObject missile)
+        {
+          _magicMissilesToRemove.Add((MagicMissile)missile);   
+        }
     }
 }

@@ -1,3 +1,4 @@
+using CaveEngine.Utils;
 using Microsoft.Xna.Framework.Input;
 
 namespace CaveWizard.Game {
@@ -7,5 +8,7 @@ namespace CaveWizard.Game {
         public static Keys PlayerMoveLeft = Keys.A;
         public static Keys PlayerMoveRight = Keys.D;
         public static Keys PlayerJump = Keys.Space;
+        public static MouseButtons PlayerShoot = MouseButtons.LeftButton;
+
     }
 }
