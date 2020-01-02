@@ -8,20 +8,29 @@
  using Microsoft.Xna.Framework.Graphics;
 
  namespace CaveEngine.ScreenSystem
-{
+ {
+
+     public enum ButtonType
+     {
+         Base,
+         CheckBox
+     }
+     
     /// <summary>
     /// Helper class represents a single entry in a MenuScreen. By default this
     /// just draws the entry text string, but it can be customized to display menu
     /// entries in different ways. This also provides an event that will be raised
     /// when the menu entry is selected.
     /// </summary>
-    public sealed class MenuButton
+    public class MenuButton 
     {
-        private Vector2 _baseOrigin;
-        private bool _flip;
+        protected Vector2 _baseOrigin;
+        protected bool _flip;
 
-        private float _scale;
-        private GameScreen _screen;
+        protected float _scale;
+        protected GameScreen _screen;
+        public EventHandler ClickedOn;
+        public int EntriesIndex { get; set; }
 
         /// <summary>
         /// Tracks a fading selection effect on the entry.
@@ -29,14 +38,14 @@
         /// <remarks>
         /// The entries transition out of the selection effect when they are deselected.
         /// </remarks>
-        private float _selectionFade;
+        protected float _selectionFade;
 
-        private Texture2D _sprite;
+        protected Texture2D _sprite;
 
         /// <summary>
         /// Constructs a new menu entry with the specified text.
         /// </summary>
-        public MenuButton(Texture2D sprite, bool flip, Vector2 position, GameScreen screen)
+        public MenuButton(Texture2D sprite, bool flip, Vector2 position, GameScreen screen, int entriesIndex)
         {
             _screen = screen;
             _scale = 1f;
@@ -45,6 +54,7 @@
             Hover = false;
             _flip = flip;
             Position = position;
+            EntriesIndex = entriesIndex;
         }
 
         /// <summary>
@@ -74,7 +84,7 @@
         /// <summary>
         /// Draws the menu entry. This can be overridden to customize the appearance.
         /// </summary>
-        public void Draw()
+        public virtual void Draw()
         {
             SpriteBatch batch = _screen.ScreenManager.SpriteBatch;
             var col = new Color(235, 204, 255);
@@ -83,5 +93,7 @@
 
             batch.Draw(_sprite, Position - _baseOrigin * _scale, null, color, 0f, Vector2.Zero, _scale, _flip ? SpriteEffects.FlipVertically : SpriteEffects.None, 0f);
         }
+
+        
     }
 }

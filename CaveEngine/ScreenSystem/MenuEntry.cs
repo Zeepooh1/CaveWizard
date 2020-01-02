@@ -13,7 +13,9 @@
     {
         Screen,
         Separator,
-        ExitItem
+        ExitItem,
+        Back,
+        ToMainMenu
     }
 
     /// <summary>
@@ -90,6 +92,15 @@
             return _type != EntryType.Separator;
         }
 
+        public bool IsBackItem()
+        {
+            return _type == EntryType.Back;
+        }
+
+        public bool IsToMainMenu()
+        {
+            return _type == EntryType.ToMainMenu;
+        }
         /// <summary>
         /// Updates the menu entry.
         /// </summary>

@@ -32,41 +32,41 @@ namespace CaveWizard.Game {
         private SpriteEffects _playerEffect = SpriteEffects.FlipVertically;
         private bool _isMoving;
         private Vector2 _playerMovingForce;
-        
-        
-        public event EventHandler<EventArgs> DrawOrderChanged;
-        public event EventHandler<EventArgs> VisibleChanged;
-        public event EventHandler<EventArgs> EnabledChanged;
-        public event EventHandler<EventArgs> UpdateOrderChanged;
-    
-        public Player(ScreenManager screenManager, string propName, Vector2 pos, World world, int columns, int rows) : base(screenManager, propName, new Vector2(1.5f, 0.5f),  new Vector2(1.5f, 1.5f), columns, rows)
+
+        public Player(ScreenManager screenManager, string propName, Vector2 pos, World world, int columns, int rows) : base(screenManager, propName, new Vector2(0.75f, 0.25f),  new Vector2(0.75f, 0.75f), columns, rows)
         {
             _magicMissiles = new List<MagicMissile>();
             _magicMissilesToRemove = new List<MagicMissile>();
             _x = 0;
             _y = 0;
             _baseVelocity = 0.05f;
-            ObjectBody = world.CreateCapsule(_objectBodySize.X, 0.5f, 10, _objectBodySize.Y , 10, 1f, pos);
+            ObjectBody = world.CreateCapsule(_objectBodySize.X, 0.25f, 10, _objectBodySize.Y , 10, 1f, pos);
             ObjectBody.BodyType = BodyType.Dynamic;
             ObjectBody.SetRestitution(0f);
             ObjectBody.Mass = 2f;
             ObjectBody.FixedRotation = true;
             ObjectBody.SetFriction(1.0f);
             ObjectBody.OnSeparation += Seperation;
-            ObjectBody.OnCollision += Colided;
+         //   ObjectBody.OnCollision += Colided;
             ObjectBody.Tag = "Player";
             foreach (var fixture1 in ObjectBody.FixtureList)
             {
                 fixture1.Tag = "Player";
             }
             ObjectBody.SetCollisionCategories((Category) (Category.All - Category.Cat1));
-            Vertices vertices = PolygonTools.CreateRectangle(0.2f, 0.2f);
-            vertices.Translate(new Vector2(0f, -0.8f));
+            
+            //create bottom rectangle for floor detection
+            Vertices vertices = PolygonTools.CreateRectangle(0.1f, 0.1f);
+            vertices.Translate(new Vector2(0f, -0.4f));
             Shape rectangle = new PolygonShape(vertices, 1f);
-            _jumpSoundEffects = screenManager.Content.Load<SoundEffect>("Sounds/jump");
             Fixture fixture = ObjectBody.CreateFixture(rectangle);
+            fixture.Tag = "AirDetectorBottom";
             fixture.IsSensor = true;
             fixture.OnSeparation = fixtureSeperated;
+            fixture.OnCollision += Colided;
+            //set sound effect
+            _jumpSoundEffects = screenManager.Content.Load<SoundEffect>("Sounds/jump");
+            
 //            PlayerBody.CreateRectangle(0.2f, 0.2f, 1f, new Vector2(0f, -0.8f)).IsSensor = true;
             _inAir = true;
             _isMoving = false;
@@ -75,11 +75,32 @@ namespace CaveWizard.Game {
 
         }
 
+
+        public event EventHandler<EventArgs> DrawOrderChanged;
+
+        public event EventHandler<EventArgs> VisibleChanged;
+
+        public event EventHandler<EventArgs> EnabledChanged;
+
+        public event EventHandler<EventArgs> UpdateOrderChanged;
+
         private void fixtureSeperated(Fixture sender, Fixture other, Contact contact)
         {
+            var contactList = sender.Body.ContactList;
             _inAir = true;
+            while (contactList.Next != null)
+            {
+                if (contactList.Contact.IsTouching)
+                {
+                    if(!"DetectionCone".Equals(contactList.Contact.FixtureB.Tag))
+                        _inAir = false;
+                }
+
+                contactList = contactList.Next;
+            }
 
         }
+
         private bool Colided(Fixture sender, Fixture other, Contact contact)
         {
             _inAir = false;
@@ -116,8 +137,11 @@ namespace CaveWizard.Game {
 
             if (inputHelper.IsNewKeyPress(KeyBinds.PlayerJump) && !_inAir)
             {
-                ObjectBody.ApplyLinearImpulse(new Vector2(0f, 6f));
-                _jumpSoundEffects.Play();
+                ObjectBody.ApplyLinearImpulse(new Vector2(0f, 1f));
+                if (GameSettings._Volume)
+                {
+                    _jumpSoundEffects.Play();
+                }
             }
             
         }
@@ -146,13 +170,13 @@ namespace CaveWizard.Game {
 
         public void Draw(GameTime gameTime)
         {
-            int width =  Texture2D.Width / 6; 
-            int height = Texture2D.Height / 3;
+            int width =  Texture2D.Width / _columns; 
+            int height = Texture2D.Height / _rows;
             
             Rectangle sourceRectangle = new Rectangle(width * _currColumn, height * _currRow, width, height);
             
             _screenManager.SpriteBatch.Draw(Texture2D, ObjectBody.Position, sourceRectangle, Color.White, ObjectBody.Rotation,
-                  _textureHalf, _objectTextureMetersSize / (_objectTextureSize / new Vector2(6f, 3f)), _playerEffect, 0f);
+                  _textureHalf, _objectTextureMetersSize / (_objectTextureSize / new Vector2(_columns, _rows)), _playerEffect, 0f);
         }
 
 

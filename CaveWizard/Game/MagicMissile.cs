@@ -1,5 +1,6 @@
 ﻿using System;
 using CaveEngine.ScreenSystem;
+using CaveWizard.Globals;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
@@ -28,14 +29,18 @@ namespace CaveWizard.Game
             ObjectBody = world.CreateBody();
             ObjectBody.BodyType = BodyType.Dynamic;
             ObjectBody.IsBullet = true;
-            ObjectBody.Position = pos + directionVector;
+            ObjectBody.Position = pos + (directionVector / 2);
             ObjectBody.SetCollisionCategories(Category.Cat1);
             ObjectBody.IgnoreGravity = true;
 
             Fixture fixture = ObjectBody.CreateFixture(shape);
             fixture.Restitution = 0.05f;
             _missileSoundEffect = screenManager.Content.Load<SoundEffect>("Sounds/magic_missile");
-            _missileSoundEffect.Play();
+            if (GameSettings._Volume)
+            {
+                _missileSoundEffect.Play();
+            }
+
             ObjectBody.LinearVelocity = directionVector * 10f;
             ObjectBody.OnCollision += Collided;
 

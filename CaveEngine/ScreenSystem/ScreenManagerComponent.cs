@@ -252,6 +252,7 @@ namespace CaveEngine.ScreenSystem
             // to respond to gestures that screen is interested in.
             if (_screens.Count > 0)
                 TouchPanel.EnabledGestures = _screens[_screens.Count - 1].EnabledGestures;
+            
         }
     }
 }

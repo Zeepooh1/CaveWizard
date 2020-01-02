@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaveWizard", "CaveWizard\Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaveEngine", "CaveEngine\CaveEngine.csproj", "{C1D6A2D6-A45C-465B-80A9-25376DD97E28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelGenerator", "LevelGenerator\LevelGenerator.csproj", "{D1BFA34E-C0C4-4BDF-95C4-152A6AB34E93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1D6A2D6-A45C-465B-80A9-25376DD97E28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1BFA34E-C0C4-4BDF-95C4-152A6AB34E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1BFA34E-C0C4-4BDF-95C4-152A6AB34E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1BFA34E-C0C4-4BDF-95C4-152A6AB34E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1BFA34E-C0C4-4BDF-95C4-152A6AB34E93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

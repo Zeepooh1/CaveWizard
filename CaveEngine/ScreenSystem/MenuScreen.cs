@@ -37,6 +37,8 @@ namespace CaveEngine.ScreenSystem
         private MenuButton _scrollUp;
         private MenuButton _scrollDown;
         private MenuButton _scrollSlider;
+        private List<MenuButton> _menuButtons = new List<MenuButton>();
+        private int _selectedButton;
         private bool _scrollLock;
 
         /// <summary>
@@ -55,6 +57,30 @@ namespace CaveEngine.ScreenSystem
         {
             MenuEntry entry = new MenuEntry(this, name, type, screen);
             _menuEntries.Add(entry);
+        }
+
+        public MenuButton AddMenuButton(ButtonType type, string tex, string seperatorText, bool isChecked)
+        {
+            AddMenuItem(seperatorText, EntryType.Separator, null);
+            MenuEntry entry = _menuEntries[^1];
+            MenuButton button;
+            Texture2D sprite = ScreenManager.Content.Load<Texture2D>(tex);
+            switch (type)
+            {
+                case ButtonType.Base:
+                    button = new MenuButton(sprite, false, entry.Position + new Vector2(10f, 0f), this, _menuEntries.Count-1);
+                    break;
+                case ButtonType.CheckBox:
+                    button = new MenuCheckBox(sprite, false, entry.Position + new Vector2(10f, 0f), this, 1, isChecked, _menuEntries.Count-1);
+                    break;
+                default:
+                    button = null;
+                    break;
+            }
+
+            _menuButtons.Add(button);
+
+            return button;
         }
 
         public override void LoadContent()
@@ -86,9 +112,9 @@ namespace CaveEngine.ScreenSystem
             _menuOffset = 0f;
             _maxOffset = Math.Max(0f, (_menuEntries.Count - NumEntries) * _menuBorderMargin);
 
-            _scrollUp = new MenuButton(_texScrollButton, false, new Vector2(scrollBarPos, _menuBorderTop - _texScrollButton.Height), this);
-            _scrollDown = new MenuButton(_texScrollButton, true, new Vector2(scrollBarPos, _menuBorderBottom + _texScrollButton.Height), this);
-            _scrollSlider = new MenuButton(_texSlider, false, new Vector2(scrollBarPos, _menuBorderTop), this);
+            _scrollUp = new MenuButton(_texScrollButton, false, new Vector2(scrollBarPos, _menuBorderTop - _texScrollButton.Height), this, -1);
+            _scrollDown = new MenuButton(_texScrollButton, true, new Vector2(scrollBarPos, _menuBorderBottom + _texScrollButton.Height), this, -1);
+            _scrollSlider = new MenuButton(_texSlider, false, new Vector2(scrollBarPos, _menuBorderTop), this, -1);
 
             _scrollLock = false;
         }
@@ -127,6 +153,24 @@ namespace CaveEngine.ScreenSystem
             else
                 _selectedEntry = -1;
 
+            hoverIndex = GetButtonAt(input.Cursor);
+            if (hoverIndex > -1)
+            {
+                _selectedButton = hoverIndex;
+            }
+            else
+            {
+                _selectedButton = -1;
+            }
+
+            if (_selectedButton > -1)
+            {
+                if (_menuButtons[_selectedButton] is IInvokable && input.IsMenuSelect())
+                {
+                    _menuButtons[_selectedButton].ClickedOn?.Invoke(_menuButtons[_selectedButton], null);
+                }
+            }
+
             _scrollSlider.Hover = false;
             if (input.IsCursorValid)
             {
@@ -146,10 +190,33 @@ namespace CaveEngine.ScreenSystem
             {
                 if (_menuEntries[_selectedEntry].IsExitItem())
                     ScreenManager.Game.Exit();
+                else if (_menuEntries[_selectedEntry].IsBackItem())
+                {
+                    if (_menuEntries[_selectedEntry].Screen != null)
+                    {
+                        if (_menuEntries[_selectedEntry].Screen is IMenubale)
+                        {
+                            ((IMenubale)_menuEntries[_selectedEntry].Screen).MenuDestroyed();
+                        }
+                    }
+                    ExitScreen();
+                }
+                else if (_menuEntries[_selectedEntry].IsToMainMenu())
+                {
+                    if (_menuEntries[_selectedEntry].Screen != null)
+                    {
+                        if (_menuEntries[_selectedEntry].Screen is IMenubale)
+                        {
+                            ((IMenubale)_menuEntries[_selectedEntry].Screen).ToMainMenu();
+                        }
+                    }
+                    ExitScreen();
+                }
                 else if (_menuEntries[_selectedEntry].Screen != null)
                 {
                     ScreenManager.AddScreen(_menuEntries[_selectedEntry].Screen);
                 }
+                
             }
             else if (input.IsMenuCancel())
                 ScreenManager.Game.Exit();
@@ -189,6 +256,20 @@ namespace CaveEngine.ScreenSystem
             }
         }
 
+        private int GetButtonAt(Vector2 position)
+        {
+            int index = 0;
+            foreach (MenuButton button in _menuButtons)
+            {
+                button.Collide(position);
+                if (button.Hover)
+                    return index;
+
+                ++index;
+            }
+            return -1;
+        }
+
         /// <summary>
         /// Allows the screen the chance to position the menu entries. By default
         /// all menu entries are lined up in a vertical list, centered on the screen.
@@ -225,6 +306,14 @@ namespace CaveEngine.ScreenSystem
                 // move down for the next entry the size of this entry
                 position.Y += _menuEntries[i].GetHeight();
             }
+            for (int i = 0; i < _menuButtons.Count; ++i)
+            {
+               
+                // set the entry's position
+                _menuButtons[i].Position = _menuEntries[_menuButtons[i].EntriesIndex].Position + new Vector2(100f, 0);
+                // move down for the next entry the size of this entry
+            }
+            
             Vector2 scrollPos = _scrollSlider.Position;
             scrollPos.Y = MathHelper.Lerp(_menuBorderTop, _menuBorderBottom, _menuOffset / _maxOffset);
             _scrollSlider.Position = scrollPos;
@@ -265,6 +354,11 @@ namespace CaveEngine.ScreenSystem
             for (int i = 0; i < _menuEntries.Count; ++i)
             {
                 _menuEntries[i].Draw();
+            }
+
+            foreach (MenuButton menuButton in _menuButtons)
+            {
+                menuButton.Draw();
             }
 
             // Make the menu slide into place during transitions, using a
