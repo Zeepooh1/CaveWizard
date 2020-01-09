@@ -24,7 +24,7 @@ namespace CaveEngine.ScreenSystem
         private InputHelper _input;
         private bool _isInitialized;
 
-        private List<GameScreen> _screens;
+        public List<GameScreen> Screens;
         private List<GameScreen> _screensToUpdate;
 
         private List<RenderTarget2D> _transitions;
@@ -42,7 +42,7 @@ namespace CaveEngine.ScreenSystem
             Content.RootDirectory = "Content";
             _input = new InputHelper(this);
 
-            _screens = new List<GameScreen>();
+            Screens = new List<GameScreen>();
             _screensToUpdate = new List<GameScreen>();
             _transitions = new List<RenderTarget2D>();
         }
@@ -89,7 +89,7 @@ namespace CaveEngine.ScreenSystem
             _input.LoadContent();
 
             // Tell each of the screens to load their content.
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 screen.LoadContent();
             }
@@ -101,7 +101,7 @@ namespace CaveEngine.ScreenSystem
         protected override void UnloadContent()
         {
             // Tell each of the screens to unload their content.
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 screen.UnloadContent();
             }
@@ -119,7 +119,7 @@ namespace CaveEngine.ScreenSystem
             // the process of updating one screen adds or removes others.
             _screensToUpdate.Clear();
 
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 _screensToUpdate.Add(screen);
             }
@@ -163,7 +163,7 @@ namespace CaveEngine.ScreenSystem
         /// </summary>
         public override void Draw(GameTime gameTime)
         {
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 if (screen.ScreenState == ScreenState.TransitionOn ||
                     screen.ScreenState == ScreenState.TransitionOff || 
@@ -175,7 +175,7 @@ namespace CaveEngine.ScreenSystem
             }
             
             int transitionCount = 0;
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 if (screen.ScreenState == ScreenState.TransitionOn ||
                     screen.ScreenState == ScreenState.TransitionOff)
@@ -196,7 +196,7 @@ namespace CaveEngine.ScreenSystem
             GraphicsDevice.Clear(Color.Black);
 
             transitionCount = 0;
-            foreach (GameScreen screen in _screens)
+            foreach (GameScreen screen in Screens)
             {
                 if (screen.ScreenState == ScreenState.Hidden)
                     continue;
@@ -222,12 +222,11 @@ namespace CaveEngine.ScreenSystem
         {
             screen.ScreenManager = this;
             screen.IsExiting = false;
-
             // If we have a graphics device, tell the screen to load content.
             if (_isInitialized)
                 screen.LoadContent();
 
-            _screens.Add(screen);
+            Screens.Add(screen);
 
             // update the TouchPanel to respond to gestures this screen is interested in
             TouchPanel.EnabledGestures = screen.EnabledGestures;
@@ -245,13 +244,13 @@ namespace CaveEngine.ScreenSystem
             if (_isInitialized)
                 screen.UnloadContent();
 
-            _screens.Remove(screen);
+            Screens.Remove(screen);
             _screensToUpdate.Remove(screen);
 
             // if there is a screen still in the manager, update TouchPanel
             // to respond to gestures that screen is interested in.
-            if (_screens.Count > 0)
-                TouchPanel.EnabledGestures = _screens[_screens.Count - 1].EnabledGestures;
+            if (Screens.Count > 0)
+                TouchPanel.EnabledGestures = Screens[Screens.Count - 1].EnabledGestures;
             
         }
     }

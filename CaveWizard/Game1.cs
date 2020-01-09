@@ -14,6 +14,7 @@ using CaveWizard.Menus;
 using IniParser;
 using IniParser.Exceptions;
 using IniParser.Model;
+using Microsoft.Xna.Framework.Audio;
 using tainicom.Aether.Physics2D.Dynamics;
 
 namespace CaveWizard {
@@ -29,11 +30,15 @@ namespace CaveWizard {
             Components.Add(ScreenManager);
         }
 
+
         protected override void Initialize() {
             base.Initialize();
             
             GlobalDevices._GameState = GameState.MAINMENU;
             GameSettings.InitParser();
+            GlobalDevices._GraphicsDeviceManager.IsFullScreen = GameSettings._FullScreen;
+            GlobalDevices._GraphicsDeviceManager.ApplyChanges();
+            SoundEffects.LoadSoundEffects(ScreenManager.Content);
             Level level = new Level();
             MenuScreen menuScreen = new MenuScreen("CaveWizard");
 

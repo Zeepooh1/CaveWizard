@@ -160,29 +160,6 @@
 
         protected virtual void HandleCursor(InputHelper input)
         {
-            Vector2 position = Camera.ConvertScreenToWorld(input.Cursor);
-
-            if ((input.IsNewButtonPress(Buttons.A) || input.IsNewMouseButtonPress(MouseButtons.LeftButton)) && _fixedMouseJoint == null)
-            {
-                Fixture savedFixture = World.TestPoint(position);
-                if (savedFixture != null)
-                {
-                    Body body = savedFixture.Body;
-                    _fixedMouseJoint = new FixedMouseJoint(body, position);
-                    _fixedMouseJoint.MaxForce = 1000.0f * body.Mass;
-                    World.Add(_fixedMouseJoint);
-                    body.Awake = true;
-                }
-            }
-
-            if ((input.IsNewButtonRelease(Buttons.A) || input.IsNewMouseButtonRelease(MouseButtons.LeftButton)) && _fixedMouseJoint != null)
-            {
-                World.Remove(_fixedMouseJoint);
-                _fixedMouseJoint = null;
-            }
-
-            if (_fixedMouseJoint != null)
-                _fixedMouseJoint.WorldAnchorB = position;
         }
 
         private void HandleCamera(InputHelper input, GameTime gameTime)

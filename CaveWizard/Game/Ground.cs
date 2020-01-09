@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CaveEngine.ScreenSystem;
 using CaveWizard.Globals;
+using CaveWizard.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,14 +11,14 @@ using tainicom.Aether.Physics2D.Dynamics;
 
 namespace CaveWizard.Game
 {
-    public class Ground : WorldObject, IDrawable
+    public class Ground : TexturedWorldObject
     {
        public int DrawOrder { get; }
         public bool Visible { get; }
         public event EventHandler<EventArgs> DrawOrderChanged;
         public event EventHandler<EventArgs> VisibleChanged;
 
-        public Ground(ScreenManager screenManager, string propName, Vector2 pos, World world, int columns, int rows, List<List<char>> level, Int32 i, Int32 j) : base(screenManager, propName, new Vector2(1f, 1f), new Vector2(1f, 1f), columns, rows)
+        public Ground(ScreenManager screenManager, string propName, Vector2 pos, World world, int columns, int rows, List<List<char>> level, Int32 i, Int32 j, Level sourceLevel) : base(screenManager, propName, new Vector2(1f, 1f), new Vector2(1f, 1f), columns, rows, sourceLevel)
         {
             ObjectBody = world.CreateRectangle(_objectBodySize.X, _objectBodySize.Y, 1f, pos);
             ObjectBody.BodyType = BodyType.Static;

@@ -206,6 +206,13 @@
 /processorParam:TextureFormat=Color
 /build:Materials/waves.png
 
+#begin Shaders/grayScale.hlsl
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=
+/build:Shaders/grayScale.hlsl
+
 #begin Sounds/Hit.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
@@ -260,6 +267,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Checkbox.png
 
+#begin Textures/Door.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Door.png
+
 #begin Textures/ground.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -271,6 +290,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/ground.png
+
+#begin Textures/ItemToolBar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/ItemToolBar.png
+
+#begin Textures/magicMissile.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/magicMissile.png
 
 #begin Textures/skeleton.png
 /importer:TextureImporter
