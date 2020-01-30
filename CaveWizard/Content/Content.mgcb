@@ -213,6 +213,18 @@
 /processorParam:Defines=
 /build:Shaders/grayScale.hlsl
 
+#begin Sounds/chamber_of_secrets.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/chamber_of_secrets.mp3
+
+#begin Sounds/door_open.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/door_open.mp3
+
 #begin Sounds/Hit.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
@@ -231,17 +243,11 @@
 /processorParam:Quality=Best
 /build:Sounds/magic_missile.mp3
 
-#begin Textures/1.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/1.png
+#begin Sounds/stomp.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/stomp.mp3
 
 #begin Textures/blackMageConcept.png
 /importer:TextureImporter
@@ -326,4 +332,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/skeleton.png
+
+#begin Textures/wall.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/wall.png
 

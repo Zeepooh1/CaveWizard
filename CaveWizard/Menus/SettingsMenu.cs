@@ -19,7 +19,10 @@ namespace CaveWizard.Menus
                 AddMenuItem("", EntryType.Separator, null);
                 AddMenuItem("", EntryType.Separator, null);
                 AddMenuItem("", EntryType.Separator, null);
-                MenuButton button = AddMenuButton(ButtonType.CheckBox, "Textures/Checkbox", "Volume", GameSettings._Volume);
+                MenuButton button = AddMenuButton(ButtonType.CheckBox, "Textures/Checkbox", "Volume",
+                    GameSettings._Volume);
+                MenuButton musicButton =
+                    AddMenuButton(ButtonType.CheckBox, "Textures/CheckBox", "Music", GameSettings._Music);
                 MenuButton fullScreenButton = AddMenuButton(ButtonType.CheckBox, "Textures/CheckBox", "Full screen",
                     GameSettings._FullScreen);
                 AddMenuItem("", EntryType.Separator, null);
@@ -27,10 +30,19 @@ namespace CaveWizard.Menus
                 AddMenuItem("Back", EntryType.Back, null);
                 button.ClickedOn += VolumeCheckBoxClicked;
                 fullScreenButton.ClickedOn += FullScreenCheckBoxClicked;
+                musicButton.ClickedOn += MusicCheckBoxClicked;
                 _firstLoad = false;
             }
 
             base.LoadContent();
+        }
+
+        private void MusicCheckBoxClicked(object sender, EventArgs e)
+        {
+            MenuCheckBox buttonSender = (MenuCheckBox) sender;
+            buttonSender.Change();
+            GameSettings._Music = buttonSender.IsChecked;
+            GameSettings.SaveSettings();
         }
 
         private void FullScreenCheckBoxClicked(object sender, EventArgs e)

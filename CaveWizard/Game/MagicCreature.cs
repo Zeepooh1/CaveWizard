@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CaveEngine.ScreenSystem;
+using CaveEngine.WorldSystem;
 using CaveWizard.Levels;
 using Microsoft.Xna.Framework;
 

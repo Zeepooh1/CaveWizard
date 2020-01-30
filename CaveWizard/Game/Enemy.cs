@@ -31,8 +31,8 @@ namespace CaveWizard.Game
         private Fixture _leftCone;
         private Fixture _rightCone;
         private Texture2D _healthTexture;
-        private bool _gotHit;
         private Rectangle _healthSourceRectangle;
+        private Color _healthBarColor;
 
         public Enemy(ScreenManager screenManager, Player player, string propName,Vector2 pos, World world, Vector2 objectBodySize, Vector2 objectTextureMetersSize, int columns, int rows, Level sourceLevel) : base(screenManager, propName, objectBodySize, objectTextureMetersSize, columns, rows, sourceLevel)
         {
@@ -66,7 +66,8 @@ namespace CaveWizard.Game
                     fixture.Tag = "Enemy";
                 }
             }
-            
+
+            _healthBarColor = Color.Green;
             makeHealthBar();
         
             ObjectBody.OnCollision += OnCollision;
@@ -123,7 +124,7 @@ namespace CaveWizard.Game
 
                     Shape shape = new PolygonShape(verts, 0f);
                     _healthTexture =
-                        _screenManager.Assets.TextureFromShape(shape, MaterialType.Squares, Color.Green, 0.001f);
+                        _screenManager.Assets.TextureFromShape(shape, MaterialType.Squares, Color.White, 0.001f);
                    
                     _healthSourceRectangle = new Rectangle(0, 0, _healthTexture.Width * (Health / 100), _healthTexture.Height);
                 }
@@ -192,10 +193,19 @@ namespace CaveWizard.Game
                 Health -= 25;
                 makeHealthBar();
                 _gotHit = false;
+                if (Health <= 50)
+                {
+                    _healthBarColor = Color.Yellow;
+                }
+
+                if (Health <= 25)
+                {
+                    _healthBarColor = Color.Red;
+                }
             }
             if (Health <= 0)
             {
-                SourceLevel.EnemyDiedEvent.Invoke(this);
+                ((Level)SourceLevel).EnemyDiedEvent.Invoke(this);
             }
             if (_playerSeen)
             {
@@ -256,7 +266,7 @@ namespace CaveWizard.Game
                 _currColumn = (int) (gameTime.TotalGameTime.Subtract(_timeSinceLastMissile).Milliseconds / 100f) % 10;
                 if (_currColumn == 9 && prevColumn != 9)
                 {
-                    _magicMissiles.Add(new MagicMissile(_screenManager, ObjectBody.World, ObjectBody.Position, _player.ObjectBody.Position,  this, 1, 1, SourceLevel));
+                    _magicMissiles.Add(new MagicMissile(_screenManager, ObjectBody.World, ObjectBody.Position, _player.ObjectBody.Position,  this, 1, 1, (Level)SourceLevel));
                     CreatureState = CreatureState.Moving;
                 }
             }
@@ -272,7 +282,7 @@ namespace CaveWizard.Game
                 
 
                 _screenManager.SpriteBatch.Draw(_healthTexture, ObjectBody.Position + new Vector2(-0.65f, 0.75f), _healthSourceRectangle,
-                    Color.White, 0f, new Vector2(0.0f, 0.0f), 0.1f, SpriteEffects.None, 0f);
+                    _healthBarColor, 0f, new Vector2(0.0f, 0.0f), 0.1f, SpriteEffects.None, 0f);
             }
 
             base.Draw(gameTime);

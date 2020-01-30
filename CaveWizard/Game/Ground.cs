@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using CaveEngine.ScreenSystem;
+using CaveEngine.WorldSystem;
 using CaveWizard.Globals;
 using CaveWizard.Levels;
 using Microsoft.Xna.Framework;
@@ -53,6 +54,12 @@ namespace CaveWizard.Game
             else
             {
                 _currColumn = 1;
+            }
+
+            if (rows > 1)
+            {
+                _currColumn = j;
+                _currRow = i;
             }
             
         }

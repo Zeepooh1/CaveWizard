@@ -2,6 +2,6 @@
 {
     public enum GameState
     {
-        PLAY, MENU, MAINMENU
+        PLAY, MENU, MAINMENU, NEXTLEVEL
     }
 }

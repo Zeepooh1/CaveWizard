@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using CaveEngine.ScreenSystem;
-using CaveWizard.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace CaveWizard.Game
+namespace CaveEngine.WorldSystem
 {
     public abstract class TexturedWorldObject : WorldObject, IDrawable
     {
@@ -18,11 +16,10 @@ namespace CaveWizard.Game
         public bool Visible { get; }
         public event EventHandler<EventArgs> DrawOrderChanged;
         public event EventHandler<EventArgs> VisibleChanged;
-        protected Dictionary<CreatureState, TimeSpan> AnimationTimeSpans;
         protected TimeSpan AnimationChange;
 
         protected TexturedWorldObject(ScreenManager screenManager, string propName, Vector2 objectBodySize,
-            Vector2 objectTextureMetersSize, int columns, int rows, Level sourceLevel) : base(screenManager,
+            Vector2 objectTextureMetersSize, int columns, int rows, PhysicsGameScreen sourceLevel) : base(screenManager,
             objectBodySize, columns, rows, sourceLevel)
         {
             _currentFrame = 0;

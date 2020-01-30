@@ -1,7 +1,9 @@
-﻿namespace CaveWizard.Game
+﻿using Microsoft.Xna.Framework;
+
+namespace CaveWizard.Game
 {
     public interface IInteractable
     {
-        void Interact();
+        void Interact(GameTime gameTime);
     }
 }

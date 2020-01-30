@@ -5,10 +5,13 @@ using CaveEngine.ScreenSystem;
 using CaveEngine.Utils;
 using CaveWizard.Game;
 using CaveWizard.Globals;
+using CaveWizard.Helpers;
 using CaveWizard.Menus;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace CaveWizard.Levels
@@ -25,12 +28,15 @@ namespace CaveWizard.Levels
         public EnemyDiedEventHandler EnemyDiedEvent; 
         private Menu _menu;
         private bool _scheduledNewLevel;
+        private int _level;
+        private TimeSpan _timeSinceLevelSchedule;
 
         public Level()
         {
             TransitionOffTime = TimeSpan.Zero;
             TransitionOnTime = TimeSpan.Zero;
             EnemyDiedEvent = EnemyDied;
+            _level = 1;
 
         }
 
@@ -45,48 +51,90 @@ namespace CaveWizard.Levels
             _scheduledNewLevel = false;
             GlobalDevices._GameState = GameState.PLAY;
             World.Gravity = new Vector2(0, -10f);
-            _generator = new Generator(1);
-           _ground = new List<Ground>();
-           _enemies = new List<Enemy>();            
-           _enemiesToDestroy = new List<Enemy>();         
+            _generator = new Generator(_level);
+            _ground = new List<Ground>();
+            _enemies = new List<Enemy>();
+            _enemiesToDestroy = new List<Enemy>();
 
-           for (int i = 0; i < _generator.LevelPresented.Count; i++)
-           {
-               int holesEncountered = 0;
-               for (int j = 0; j < _generator.LevelPresented[i].Count; j++)
-               {
-                   char currElement = _generator.LevelPresented[i][j];
-                   if (currElement == '.')
-                   {
-                       holesEncountered++;
-                   }
-                   if (currElement == 'S')
-                   {
-                       Player = new Player(ScreenManager, "Textures/blackMageConcept", new Vector2((float)-j, (float)-i), World, 6, 3, this);
-                   }
-                   else if (currElement == '#')
-                   {
-                       _ground.Add(new Ground(ScreenManager, "Textures/ground", new Vector2((float)-(j ), (float)-(i + (i/2))), World, 3, 1, _generator.LevelPresented, i, j, this));
+            for (int i = 0; i < _generator.LevelPresented.Count; i++)
+            {
+                int holesEncountered = 0;
+                for (int j = 0; j < _generator.LevelPresented[i].Count; j++)
+                {
+                    char currElement = _generator.LevelPresented[i][j];
+                    if (j == 0)
+                    {
+                        _ground.Add(new Ground(ScreenManager, "Textures/wall",
+                            new Vector2((float) -(j - 1), (float) -(i + (i / 2))), World, 3, 3, _generator.LevelPresented,
+                            i == 0 ? 0 : 1, 2, this));
+                        if (i % 2 == 1)
+                        {
+                            _ground.Add(new Ground(ScreenManager, "Textures/wall",
+                                new Vector2((float) -(j - 1), (float) -((i + 1) + ((i) / 2))), World, 3, 3, _generator.LevelPresented,
+                                1, 2, this));
+                        }
+                    }
 
-                   }
-                   else if (currElement == 'E')
-                   {
-                       _enemies.Add(new Enemy(ScreenManager, Player, "Textures/skeleton",new Vector2((float)-(j ), (float)-(i + (i/2))), World, new Vector2(1f, 0.5f),  new Vector2(1f, 1f), 10, 5, this));
-                   }
-                   else if (currElement == 'F')
-                   {
-                       _finishDoor = new FinishDoor(ScreenManager, World, new Vector2((float) -(j), (float) -(i + (i / 2))),
-                           "Textures/Door", new Vector2(0.75f, 0.75f), Vector2.One, 2, 1, this);
-                   }
-               }
+                    if (j == _generator.LevelPresented[i].Count - 1)
+                    {
+                        _ground.Add(new Ground(ScreenManager, "Textures/wall",
+                            new Vector2((float) -(j + 1), (float) -(i + (i / 2))), World, 3, 3, _generator.LevelPresented,
+                            i == 0 ? 0 : 1, 0, this));
+                        if (i % 2 == 1)
+                        {
+                            _ground.Add(new Ground(ScreenManager, "Textures/wall",
+                                new Vector2((float) -(j + 1), (float) -((i + 1) + ((i) / 2))), World, 3, 3, _generator.LevelPresented,
+                                1, 0, this));
+                        }
+                        
+                    }
+                    if (currElement == '.')
+                    {
+                        holesEncountered++;
+                    }
+
+                    if (currElement == 'S')
+                    {
+                        Player = new Player(ScreenManager, "Textures/blackMageConcept",
+                            new Vector2((float) -j, (float) -i), World, 6, 3, this);
+                    }
+                    else if (currElement == '#')
+                    {
+                        _ground.Add(new Ground(ScreenManager, "Textures/ground",
+                            new Vector2((float) -(j), (float) -(i + (i / 2))), World, 3, 1, _generator.LevelPresented,
+                            i, j, this));
+
+                    }
+                    else if (currElement == 'E')
+                    {
+                        _enemies.Add(new Enemy(ScreenManager, Player, "Textures/skeleton",
+                            new Vector2((float) -(j), (float) -(i + (i / 2))), World, new Vector2(1f, 0.5f),
+                            new Vector2(1f, 1f), 10, 5, this));
+                    }
+                    else if (currElement == 'F')
+                    {
+                        _finishDoor = new FinishDoor(ScreenManager, World,
+                            new Vector2((float) -(j), (float) -(i + (i / 2))),
+                            "Textures/Door", new Vector2(0.75f, 0.75f), Vector2.One, 2, 1, this);
+                    }
+                }
             }
-           
-           _uiScreen = new UIScreen(GlobalDevices._GraphicsDeviceManager, ScreenManager);
-           _uiScreen.LoadContent(ScreenManager.Content);
-           _uiScreen.AddUIElement("Textures/ItemToolBar", new Vector2(ScreenManager.GraphicsDevice.Viewport.Width, 0), 3f );
-           Camera.TrackingBody = Player.ObjectBody;
+
+            _uiScreen = new UIScreen(GlobalDevices._GraphicsDeviceManager, ScreenManager);
+            _uiScreen.LoadContent(ScreenManager.Content);
+            var elementFactory = new CaveWizardUIElementFactory(Player);
+
+            _uiScreen.AddUIElement(elementFactory.CreateElement("HudHotBar"));
+            _uiScreen.AddUIElement(elementFactory.CreateElement("HudHealthBar"));
+            Camera.TrackingBody = Player.ObjectBody;
             Camera.Zoom = 4f;
             SetUserAgent(Player.ObjectBody, 2, 0);
+
+            if (GameSettings._Music)
+            {
+                MediaPlayer.Play(SoundEffects.GameSong);
+                MediaPlayer.IsRepeating = true;
+            }
         }
 
         public override void UnloadContent()
@@ -141,6 +189,7 @@ namespace CaveWizard.Levels
 
             if (input.IsNewKeyPress(KeyBinds.GoToMenu))
             {
+                MediaPlayer.Pause();
                 ScreenManager.AddScreen(new Menu("Menu", this));
             }
 
@@ -177,11 +226,11 @@ namespace CaveWizard.Levels
         {
             if (GlobalDevices._GameState == GameState.PLAY)
             {
-                if (_scheduledNewLevel)
+                if (GameSettings._Music)
                 {
-                    LoadContent();
-                    return;
+                    MediaPlayer.Resume();
                 }
+               
                 Player.Update(gameTime);
 
                 if (_enemiesToDestroy.Count > 0)
@@ -198,6 +247,34 @@ namespace CaveWizard.Levels
                 {
                     enemy.Update(gameTime);
                 }
+                
+                _uiScreen.Update(gameTime);
+            }
+            else if (GlobalDevices._GameState == GameState.MAINMENU)
+            {
+                MediaPlayer.Pause();
+                _level = 1;
+                ExitScreen();
+            }
+            else if (GlobalDevices._GameState == GameState.NEXTLEVEL)
+            { 
+                
+                if (_scheduledNewLevel)
+                {
+                    if (gameTime.TotalGameTime.Subtract(_timeSinceLevelSchedule).TotalMilliseconds > 500f)
+                    {
+                        _timeSinceLevelSchedule = gameTime.TotalGameTime;
+                        ScreenManager.AddScreen(new LevelPassage(_timeSinceLevelSchedule));
+                        _scheduledNewLevel = false;
+                    }
+
+                }
+                
+                if (gameTime.TotalGameTime.Subtract(_timeSinceLevelSchedule).TotalMilliseconds > SoundEffects.PlayerjumpSoundEffects.Duration.TotalMilliseconds + 1000f && !_scheduledNewLevel)
+                {
+                    _level++;
+                    LoadContent();
+                }
             }
             
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
@@ -211,13 +288,15 @@ namespace CaveWizard.Levels
         public void ToMainMenu()
         {
             GlobalDevices._GameState = GameState.MAINMENU;
-            ExitScreen();
-            
+
         }
 
-        public void NewLevel()
+        public void NewLevel(GameTime gameTime)
         {
+            GlobalDevices._GameState = GameState.NEXTLEVEL;
             _scheduledNewLevel = true;
+            _timeSinceLevelSchedule = gameTime.TotalGameTime;
+
         }
     }
 }

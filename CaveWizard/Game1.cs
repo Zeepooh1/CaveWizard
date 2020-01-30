@@ -24,9 +24,10 @@ namespace CaveWizard {
         public Game1() {
             GlobalDevices._GraphicsDeviceManager = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;
+            IsMouseVisible = false;
             
             ScreenManager = new ScreenManager(this);
+            GlobalDevices._ScreenManager = ScreenManager;
             Components.Add(ScreenManager);
         }
 
@@ -51,7 +52,7 @@ namespace CaveWizard {
          //   menuScreen.AddMenuButton(ButtonType.CheckBox, "Textures/Checkbox", "Test");
             menuScreen.AddMenuItem("Exit", EntryType.ExitItem, null);
             ScreenManager.AddScreen(menuScreen);
-
+            
             //_camera.Zoom = 4f;
             
         }

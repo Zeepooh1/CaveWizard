@@ -1,3 +1,4 @@
+using CaveEngine.ScreenSystem;
 using CaveEngine.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,5 +10,6 @@ namespace CaveWizard.Globals {
         public static SpriteBatch _SpriteBatch;
         public static MouseState _MouseState;
         public static GameState _GameState;
+        public static ScreenManager _ScreenManager;
     }
 }

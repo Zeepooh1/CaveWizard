@@ -34,6 +34,7 @@ namespace CaveWizard.Game {
             _x = 0;
             _y = 0;
             _baseVelocity = 0.05f;
+            Health = 100;
             
             ObjectBody = world.CreateCapsule(_objectBodySize.X, 0.25f, 10, _objectBodySize.Y , 10, 1f, pos);
             ObjectBody.BodyType = BodyType.Dynamic;
@@ -50,6 +51,7 @@ namespace CaveWizard.Game {
             {
                 fixture1.Tag = "Player";
             }
+            
             ObjectBody.SetCollisionCategories((Category) (Category.All - Category.Cat1));
             
             //create bottom rectangle for floor detection
@@ -148,7 +150,7 @@ namespace CaveWizard.Game {
             {
                 if (_nearInteractable != null)
                 {
-                    _nearInteractable.Interact();
+                    _nearInteractable.Interact(gameTime);
                 }
             }
 
@@ -168,6 +170,15 @@ namespace CaveWizard.Game {
         public void Update(GameTime gameTime)
         {
             _currentFrame++;
+            if (_gotHit)
+            {
+                _gotHit = false;
+                Health -= 25;
+                if (Health <= 0)
+                {
+                    GlobalDevices._GameState = GameState.MAINMENU;
+                }
+            }
             if (!_playerMovingForce.Equals(Vector2.Zero))
             {
                 ObjectBody.Position += _playerMovingForce;
@@ -225,7 +236,7 @@ namespace CaveWizard.Game {
         {
             if (input.IsNewMouseButtonPress(KeyBinds.PlayerShoot))
             {
-                _magicMissiles.Add(new MagicMissile(_screenManager, world, ObjectBody.Position, camera.ConvertScreenToWorld(input.Cursor), this, 1, 1, SourceLevel));
+                _magicMissiles.Add(new MagicMissile(_screenManager, world, ObjectBody.Position, camera.ConvertScreenToWorld(input.Cursor), this, 1, 1, (Level)SourceLevel));
                 AttackTimeStamp = TimeSpan.Zero;
                 CreatureState = CreatureState.Attack;
             }
@@ -241,5 +252,9 @@ namespace CaveWizard.Game {
             _nearInteractable = interactable;
         }
 
+        public void GotHit()
+        {
+            _gotHit = true;
+        }
     }
 }

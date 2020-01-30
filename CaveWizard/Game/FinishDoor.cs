@@ -1,4 +1,6 @@
 ﻿using CaveEngine.ScreenSystem;
+using CaveEngine.WorldSystem;
+using CaveWizard.Globals;
 using CaveWizard.Levels;
 using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Dynamics;
@@ -23,7 +25,7 @@ namespace CaveWizard.Game
         {
             if ("Player".Equals(other.Tag))
             {
-                SourceLevel.Player.setNewInteractable(null);
+                ((Level)SourceLevel).Player.setNewInteractable(null);
             }
 
         }
@@ -33,14 +35,16 @@ namespace CaveWizard.Game
             if ("Player".Equals(other.Tag))
             {
 
-                SourceLevel.Player.setNewInteractable(this);
+                ((Level)SourceLevel).Player.setNewInteractable(this);
             }
             return true;
         }
 
-        public void Interact()
+        public void Interact(GameTime gameTime)
         {
-            SourceLevel.NewLevel();
+            _currColumn = 1;
+            SoundEffects.OpenDoor.Play();
+            ((Level)SourceLevel).NewLevel(gameTime);
         }
     }
 }

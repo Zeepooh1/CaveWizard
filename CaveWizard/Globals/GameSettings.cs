@@ -13,6 +13,7 @@ namespace CaveWizard.Globals
         
         public static bool _Volume = true;
         public static bool _FullScreen = false;
+        public static bool _Music = true;
 
         public static void InitParser()
         {
@@ -20,12 +21,15 @@ namespace CaveWizard.Globals
             {
                 settingsData = settingsParser.ReadFile("settings.ini");
                 _Volume = bool.Parse(settingsData["Sound"]["MasterVolume"]);
+                _Music = bool.Parse(settingsData["Sound"]["Music"]);
                 _FullScreen = bool.Parse(settingsData["Graphics"]["FullScreen"]);
+                
             }
             catch (Exception e)
             {
                 settingsData = new IniData();
                 settingsData["Sound"]["MasterVolume"] = _Volume.ToString();
+                settingsData["Sound"]["Music"] = _Music.ToString();
                 settingsData["Graphics"]["FullScreen"] = _FullScreen.ToString();
                 settingsParser.WriteFile("settings.ini", settingsData);
             }
@@ -35,6 +39,7 @@ namespace CaveWizard.Globals
         public static void SaveSettings()
         {
             settingsData["Sound"]["MasterVolume"] = _Volume.ToString();
+            settingsData["Sound"]["Music"] = _Music.ToString();
             settingsData["Graphics"]["FullScreen"] = _FullScreen.ToString();
             settingsParser.WriteFile("settings.ini", settingsData);
 

@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using CaveEngine.ScreenSystem;
-using CaveWizard.Levels;
+﻿using CaveEngine.ScreenSystem;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using tainicom.Aether.Physics2D.Dynamics;
 
-namespace CaveWizard.Game
+namespace CaveEngine.WorldSystem
 {
     public abstract class WorldObject
     {
@@ -18,9 +15,9 @@ namespace CaveWizard.Game
         protected int _currColumn;
         protected int _currRow;
         protected Vector2 _textureHalf;
-        protected Level SourceLevel;
+        protected PhysicsGameScreen SourceLevel;
 
-        public WorldObject(ScreenManager screenManager, Vector2 objectBodySize, int columns, int rows, Level sourceLevel)
+        public WorldObject(ScreenManager screenManager, Vector2 objectBodySize, int columns, int rows, PhysicsGameScreen sourceLevel)
         {
             _screenManager = screenManager;
             _objectBodySize = objectBodySize;

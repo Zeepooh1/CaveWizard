@@ -143,9 +143,6 @@
             if (input.IsNewKeyPress(Keys.F8))
                 EnableOrDisableFlag(DebugViewFlags.AABB);
 
-            if (input.IsNewButtonPress(Buttons.Back) || input.IsNewKeyPress(Keys.Escape))
-                ExitScreen();
-
             if (HasCursor)
                 HandleCursor(input);
 

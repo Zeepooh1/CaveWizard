@@ -23,14 +23,8 @@ namespace CaveEngine.ScreenSystem
             _uiElements = new List<UIElement>();
         }
 
-        public void AddUIElement(string texName, Vector2 pos, float scale)
+        public void AddUIElement(UIElement element)
         {
-            UIElement element = new UIElement();
-            element.Texture = _screenManager.Content.Load<Texture2D>(texName);
-            Vector2 offset = new Vector2(element.Texture.Width, element.Texture.Height) / 2;
-            element.TextureOrigin = offset;
-            element.Position = pos + (offset * scale * (new Vector2(-1 , 1)));
-            element.TextureScale = scale;
             _uiElements.Add(element);
         }
         
@@ -43,8 +37,12 @@ namespace CaveEngine.ScreenSystem
             _grayScaleEffect = content.Load<Effect>("Shaders/grayScale");
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
+            foreach (var uiElement in _uiElements)
+            {
+                uiElement.Update(gameTime);
+            }
         }
 
         public void Draw(GameTime gameTime)
@@ -52,8 +50,7 @@ namespace CaveEngine.ScreenSystem
             //_grayScaleEffect.CurrentTechnique.Passes[0].Apply();
             foreach (var uiElement in _uiElements)
             {
-                _screenManager.SpriteBatch.Draw(uiElement.Texture, uiElement.Position, null, Color.White, 0f, uiElement.TextureOrigin, 
-                    uiElement.TextureScale, SpriteEffects.None, 0f);
+                uiElement.Draw(gameTime);
             }
           
         }

@@ -1,4 +1,6 @@
 ﻿
+using CaveEngine.WorldSystem;
+
 namespace CaveWizard.Game
 {
     public interface ICanSpawnMissiles

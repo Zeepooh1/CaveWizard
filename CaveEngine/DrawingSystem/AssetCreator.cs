@@ -224,7 +224,7 @@
             // render outline;
             _effect.TextureEnabled = false;
             _effect.CurrentTechnique.Passes[0].Apply();
-            _device.DrawUserPrimitives(PrimitiveType.LineList, verticesOutline, 0, verticesOutline.Length / 2);
+            //_device.DrawUserPrimitives(PrimitiveType.LineList, verticesOutline, 0, verticesOutline.Length / 2);
             _device.SetRenderTarget(null);
             return texture;
         }
